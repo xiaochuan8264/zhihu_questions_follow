@@ -1,0 +1,27 @@
+2021/02/21-23:09:52.040 3c54 Reusing MANIFEST G:\04_Py_Projects\__Developing__\06_zhihu_question_following\data_buff\Default\Local Storage\leveldb/MANIFEST-000001
+2021/02/21-23:09:52.042 3c54 Recovering log #154
+2021/02/21-23:09:52.042 3c54 Reusing old log G:\04_Py_Projects\__Developing__\06_zhihu_question_following\data_buff\Default\Local Storage\leveldb/000154.log 
+2021/02/21-23:11:44.939 10f4 Level-0 table #158: started
+2021/02/21-23:11:44.942 10f4 Level-0 table #158: 17104 bytes OK
+2021/02/21-23:11:44.945 10f4 Delete type=0 #154
+2021/02/21-23:18:23.449 54fc Level-0 table #160: started
+2021/02/21-23:18:23.452 54fc Level-0 table #160: 11692 bytes OK
+2021/02/21-23:18:23.454 54fc Delete type=0 #157
+2021/02/21-23:18:23.454 10f4 Compacting 4@0 + 1@1 files
+2021/02/21-23:18:23.457 10f4 Generated table #161@0: 22 keys, 11377 bytes
+2021/02/21-23:18:23.457 10f4 Compacted 4@0 + 1@1 files => 11377 bytes
+2021/02/21-23:18:23.458 10f4 compacted to: files[ 0 1 1 0 0 0 0 ]
+2021/02/21-23:18:23.459 10f4 Delete type=2 #151
+2021/02/21-23:18:23.459 10f4 Delete type=2 #153
+2021/02/21-23:18:23.459 10f4 Delete type=2 #155
+2021/02/21-23:18:23.459 10f4 Delete type=2 #158
+2021/02/21-23:18:23.459 10f4 Delete type=2 #160
+2021/02/21-23:20:06.566 2e78 Level-0 table #163: started
+2021/02/21-23:20:06.568 2e78 Level-0 table #163: 16520 bytes OK
+2021/02/21-23:20:06.570 2e78 Delete type=0 #159
+2021/02/21-23:22:44.940 54fc Level-0 table #165: started
+2021/02/21-23:22:44.943 54fc Level-0 table #165: 16504 bytes OK
+2021/02/21-23:22:44.945 54fc Delete type=0 #162
+2021/02/21-23:24:44.940 970 Level-0 table #167: started
+2021/02/21-23:24:44.943 970 Level-0 table #167: 16492 bytes OK
+2021/02/21-23:24:44.945 970 Delete type=0 #164
