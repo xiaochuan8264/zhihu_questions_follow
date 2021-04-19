@@ -1,8 +1,9 @@
 from selenium import webdriver
 from selenium.webdriver.chrome.options import Options
 import requests as rq
-import random, pickle, os, time, re, json
+import random, pickle, os, time, re, json, pymysql
 from bs4 import BeautifulSoup as bf
+from selenium.webdriver.common.keys import Keys
 
 def chrome_prep():
     # os.popen('chrome.exe --remote-debugging-port=9222 --user-data-dir="G:\04_Py_Projects\__Developing__\06_zhihu_question_following\data_buff"')
@@ -90,7 +91,7 @@ def scroll(driver):
             break
 
 def collect_random_questions(driver):
-    # 收集最新提问
+    # 收集提问 一般是最新提问
     page = driver.page_source
     soup = bf(page,'lxml')
     targets = soup.findAll(class_='QuestionItem-title')
@@ -111,12 +112,58 @@ def collect_specific_questions(driver):
 
 def get_question_status(filename):
     #调用scrapy获得所需信息
-    os.popen('cd zhihuQsFollowingSpider')
+    os.chdir('zhihuQsFollowingSpider')
     time.sleep(0.5)
-    os.popen('scrapy crawl questionSpider -a file="..\%s"'%filename)
+    os.popen('scrapy crawl questionSpider -a file="../%s"'%filename)
 
 def update_questions_status(datelimit=None, viewslimit=None):
-    pass
+    db = pymysql.connect('localhost','root','root1234','zhihuquestions')
+    cur = db.cursor()
+    sql = "select id, title, link from general_table;"
+    cur.execute(sql)
+    res = cur.fetchall()
+    data = {}
+    temp = [data.update({_[0]:{'title':_[1], 'link':_[2]}}) for _ in res]
+    filename = 'data_in_mysql.json'
+    with open(filename, 'w', encoding='utf-8') as f:
+        json.dump(data, f)
+    get_question_status(filename)
+
+def get_jingdong_products(driver, pagelimit=100):
+    """
+    首先进入京东自行找一个大的品类
+    可以是自己筛选佣金范围后的产品，也可以是搜索后的产品
+    """
+    url = driver.current_url
+
+    pages = driver.find_elements_by_class_name('number')
+    numbers = [int(_.text) for _ in pages]
+    page = max(numbers)
+    if pagelimit >= page:
+        pagelimit = page
+    for each_page in range(pagelimit):
+        # 提取页面商品信息
+        cards = driver.find_elements_by_class_name('card')
+        for card in cards:
+            card_info = {}
+            link = card.find_element_by_tag_name('a')
+            link = link.get_attribute('href')
+            otherinfo = card.text.split('\n')
+            # 不能简单粗暴的以长度来判断，否则会失败的，因为有意外的exception
+            length = len(otherinfo)
+            if length == 8:
+                commission_rate = otherinfo[0]
+                commission = otherinfo[1]
+                product = otherinfo[2]
+
+            elif length == 9:
+                pass
+        #进入下一页
+        next_page = driver.find_element_by_class_name('btn-next')
+        next_page.send_keys(Keys.ENTER)
+        time.sleep(1)
+
+
 
 def integrated_commands():
     # 开启chrome浏览器

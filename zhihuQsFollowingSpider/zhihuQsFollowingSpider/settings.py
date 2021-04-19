@@ -66,7 +66,7 @@ CONCURRENT_REQUESTS_PER_IP = 16
 # See https://docs.scrapy.org/en/latest/topics/item-pipeline.html
 ITEM_PIPELINES = {
    'zhihuQsFollowingSpider.pipelines.ZhihuqsfollowingspiderPipeline': 300,
-   'zhihuQsFollowingSpider.pipelines.ZhihuqsfollowingspiderPipeline2':200,
+   # 'zhihuQsFollowingSpider.pipelines.ZhihuqsfollowingspiderPipeline2':200,
 }
 
 # Enable and configure the AutoThrottle extension (disabled by default)

@@ -83,27 +83,27 @@ class ZhihuqsfollowingspiderPipeline(object):
     def close_spider(self,spider):
         self.db.close()
 
-class ZhihuqsfollowingspiderPipeline2(object):
-    def __init__(self):
-        self.now = time.strftime('%Y%m%d %H%M%S', time.localtime())
-        self.file = open('all_questions_data%s.json'%self.now,'w',encoding='utf-8')
-        self.container = {}
-        self.container['details'] = {}
-        self.container['general'] = {}
-
-    def process_item(self, item, spider):
-        info = item.get('detail')
-        id = info['ID']
-        if self.container['details'].get(id):
-            temp = [self.container['details'].get(id)]
-            temp.append(info)
-            self.container['details'][id] = temp
-        else:
-            self.container['details'].update({id:info})
-        self.container['general'].update({id:info})
-        return item
-
-    def close_spider(self):
-        data = json.dumps(self.container)
-        file.write(data)
-        file.close()
+# class ZhihuqsfollowingspiderPipeline2(object):
+#     def __init__(self):
+#         self.now = time.strftime('%Y%m%d %H%M%S', time.localtime())
+#         self.file = open('all_questions_data%s.json'%self.now,'w',encoding='utf-8')
+#         self.container = {}
+#         self.container['details'] = {}
+#         self.container['general'] = {}
+#
+#     def process_item(self, item, spider):
+#         info = item.get('detail')
+#         id = info['ID']
+#         if self.container['details'].get(id):
+#             temp = [self.container['details'].get(id)]
+#             temp.append(info)
+#             self.container['details'][id] = temp
+#         else:
+#             self.container['details'].update({id:info})
+#         self.container['general'].update({id:info})
+#         return item
+#
+#     def close_spider(self):
+#         data = json.dumps(self.container)
+#         file.write(data)
+#         file.close()
