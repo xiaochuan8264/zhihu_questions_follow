@@ -1,9 +1,12 @@
 from selenium import webdriver
+from selenium.common.exceptions import *
 from selenium.webdriver.chrome.options import Options
 import requests as rq
 import random, pickle, os, time, re, json, pymysql
 from bs4 import BeautifulSoup as bf
 from selenium.webdriver.common.keys import Keys
+import pandas as pd
+import numpy as np
 
 def chrome_prep():
     # os.popen('chrome.exe --remote-debugging-port=9222 --user-data-dir="G:\04_Py_Projects\__Developing__\06_zhihu_question_following\data_buff"')
@@ -134,35 +137,98 @@ def get_jingdong_products(driver, pagelimit=100):
     首先进入京东自行找一个大的品类
     可以是自己筛选佣金范围后的产品，也可以是搜索后的产品
     """
-    url = driver.current_url
+    def extract_card(card):
+        card_info = {}
+        one = card.find_element_by_class_name('one')
+        rate_and_money = one.text.split('\n')
+        commission_rate = rate_and_money[0]
+        commission = rate_and_money[1]
 
+        two = card.find_element_by_class_name('two')
+        two_detail = two.find_element_by_tag_name('a')
+        link = two_detail.get_attribute('href')
+        product = two_detail.get_attribute('title')
+
+        three = card.find_element_by_class_name('three')
+        price = three.find_element_by_tag_name('span').text
+
+        four = card.find_element_by_class_name('four')
+        comments = four.text
+
+        try:
+            shop = card.find_element_by_class_name('shop-detail')
+            shop = shop.text
+        except NoSuchElementException as e:
+            shop = 'unknown'
+        card_info['product'] = product
+        card_info['price'] = price
+        card_info['commission'] = commission
+        card_info['comments'] = comments
+        card_info['commission_rate'] = commission_rate
+        card_info['shop'] = shop
+        card_info['link'] = link
+        return card_info
+
+    def check_page(driver, last_card=None):
+        card = driver.find_element_by_class_name('card')
+        first_card_info = extract_card(card)
+        print(first_card_info, end='>>>>>')
+        print(last_card)
+        if first_card_info == last_card:
+            return True
+        else:
+            return False
+
+    url = driver.current_url
     pages = driver.find_elements_by_class_name('number')
     numbers = [int(_.text) for _ in pages]
     page = max(numbers)
     if pagelimit >= page:
         pagelimit = page
-    for each_page in range(pagelimit):
-        # 提取页面商品信息
-        cards = driver.find_elements_by_class_name('card')
-        for card in cards:
-            card_info = {}
-            link = card.find_element_by_tag_name('a')
-            link = link.get_attribute('href')
-            otherinfo = card.text.split('\n')
-            # 不能简单粗暴的以长度来判断，否则会失败的，因为有意外的exception
-            length = len(otherinfo)
-            if length == 8:
-                commission_rate = otherinfo[0]
-                commission = otherinfo[1]
-                product = otherinfo[2]
+    try:
+        products_info = []
+        # 页面刷新有延迟，需要验证是不是还在同一个页面，如果是则等待刷新
+        last_card = None
+        for each_page in range(pagelimit):
+            # 提取页面商品信息
+            cards = driver.find_elements_by_class_name('card')
+            if len(products_info):
+                check = check_page(driver, last_card)
+                while check:
+                    print('等待刷新界面')
+                    check = check_page(driver, last_card)
+                    time.sleep(5)
+                    driver.refresh()
+            mark = 1
+            for card in cards:
+                card_info = extract_card(card)
+                if mark:
+                    last_card = card_info.copy()
+                    mark = 0
+                    # print(last_card)
 
-            elif length == 9:
-                pass
-        #进入下一页
-        next_page = driver.find_element_by_class_name('btn-next')
-        next_page.send_keys(Keys.ENTER)
-        time.sleep(1)
+                products_info.append(card_info.copy())
+            #进入下一页
+            next_page = driver.find_element_by_class_name('btn-next')
+            next_page.send_keys(Keys.ENTER)
+            print('\n进入第 %d 页\n'% (each_page + 2))
+            time.sleep(5)
+        return products_info
+    except Exception as e:
+        print(e)
+    finally:
+        return products_info
 
+def save_products(products_info):
+
+    with open('jingdong_products.pl','wb') as f:
+        pickle.dump(products_info, f)
+    df = pd.DataFrame(products_info)
+    df.to_excel('jingdong_products.xlsx')
+
+def test(driver):
+    next_page = driver.find_element_by_class_name('btn-next')
+    next_page.send_keys(Keys.ENTER)
 
 
 def integrated_commands():
